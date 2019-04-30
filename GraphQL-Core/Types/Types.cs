@@ -13,7 +13,7 @@ namespace GraphQLCore.Types
     /// Acts a container for user-defined model fields for a GraphQL Type
     /// </summary>
     /// <typeparam name="T">User-defined model type</typeparam>
-    internal class GenericType<T> : ObjectGraphType<T>, IGraphQLGenericType
+    public class GenericType<T> : ObjectGraphType<T>, IGraphQLGenericType
     {
         /// <summary>
         /// Initializes the GraphQL Type, using the provided user-defined model

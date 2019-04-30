@@ -14,8 +14,9 @@
     <RepositoryUrl>https://github.com/Michannne/graphql-core</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
     <PackageTags>GraphQL, GraphQL dotnet, GraphiQL</PackageTags>
-    <PackageReleaseNotes>Created the library</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated modifiers</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
