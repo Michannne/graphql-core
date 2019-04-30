@@ -12,7 +12,7 @@ namespace GraphQLCore
     /// </summary>
     public static class GraphQLCoreTypeWrapperGenerator
     {
-        private static AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
+        public static AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
         private static ModuleBuilder mdBuilder = null;
         private static string typeNameAppend = "GQLCoreTypeWrapper";
         private static string asmNameAppend = "._Hidden_GraphQLCoreDynamicTypes";
