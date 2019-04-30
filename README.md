@@ -33,7 +33,9 @@ The latest release supports the following features:
 - [ ] Unions
 
 Supported C# types for auto-conversion:
-- [x] Any user model defined with .Type<Model>()
+- [x] Any user model defined with `.Type<Model>()`
+- [x] Any C# value-type
+- [x] Any class which implements `IEnumerable`, `IList` or `IQueryable`
   
 Instead of having to add several classes on top of pre-exising models, GraphQL-Core's main entrypoint -- `IGraphQLBuilder`, contains several features to ease integration of GraphQL.NET
 
