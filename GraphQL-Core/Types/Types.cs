@@ -7,7 +7,7 @@ namespace GraphQLCore.Types
     /// <summary>
     /// Interface tag for GraphQLCore Types
     /// </summary>
-    internal interface IGraphQLGenericType { }
+    public interface IGraphQLGenericType { }
 
     /// <summary>
     /// Acts a container for user-defined model fields for a GraphQL Type

@@ -17,7 +17,7 @@ namespace GraphQLCore.Extensions
         /// </summary>
         /// <param name="cSharpType">The C# Type to convert</param>
         /// <returns>An appropriate GraphQL.NET Type</returns>
-        internal static Type ConvertToGraphQLType(this Type cSharpType)
+        public static Type ConvertToGraphQLType(this Type cSharpType)
         {
             Type returnType;
             if (false

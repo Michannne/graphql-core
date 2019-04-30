@@ -12,14 +12,14 @@ namespace GraphQLCore
     /// </summary>
     public static class GraphQLCoreTypeWrapperGenerator
     {
-        internal static AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
-        internal static ModuleBuilder mdBuilder = null;
-        internal static string typeNameAppend = "GQLCoreTypeWrapper";
-        internal static string asmNameAppend = "._Hidden_GraphQLCoreDynamicTypes";
-        internal static string mdName = "GraphQLCoreDynamic";
-        internal static Dictionary<Type, Type> genericTypeParentClasses = new Dictionary<Type, Type>();
+        private static AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
+        private static ModuleBuilder mdBuilder = null;
+        private static string typeNameAppend = "GQLCoreTypeWrapper";
+        private static string asmNameAppend = "._Hidden_GraphQLCoreDynamicTypes";
+        private static string mdName = "GraphQLCoreDynamic";
+        private static Dictionary<Type, Type> genericTypeParentClasses = new Dictionary<Type, Type>();
 
-        internal static Type CreateGraphQLTypeWrapper<T>()
+        public static Type CreateGraphQLTypeWrapper<T>()
         {
             if (genericTypeParentClasses.ContainsKey(typeof(GenericType<T>)))
                 return genericTypeParentClasses[typeof(GenericType<T>)];
@@ -34,7 +34,7 @@ namespace GraphQLCore
             return type;
         }
 
-        internal static Type GetDerivedGenericUserType<T>()
+        public static Type GetDerivedGenericUserType<T>()
         {
             if(genericTypeParentClasses.ContainsKey(typeof(T)))
                 return genericTypeParentClasses[typeof(T)];
@@ -42,7 +42,7 @@ namespace GraphQLCore
             return null;
         }
 
-        internal static Type GetDerivedGenericUserType(this Type T)
+        public static Type GetDerivedGenericUserType(this Type T)
         {
             if (genericTypeParentClasses.ContainsKey(T))
                 return genericTypeParentClasses[T];
