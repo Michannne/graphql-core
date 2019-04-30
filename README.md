@@ -152,7 +152,15 @@ In this case, `AddGraphQL()` returns an instance of `IGraphQLBuilder`, through w
   }
 ```
 
-With this approach, `.Build()` should not be called, it will be called automatically by the `.AddGraphQL()` middleware
+With this approach, `.Build()` should not be called, it will be called automatically by the `.AddGraphQL()` middleware:
+
+```csharp
+services.AddGraphQL((builer) =>
+  (new LibraryConfiguration(authorRepo, booksRepo).Configure(builder))
+  .(new AnotherConfiguration(myRepo).Configure(builder))
+  ...additional configurations can be chained here
+  )
+```
 
 ### Type stitching
 
