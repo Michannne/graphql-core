@@ -16,16 +16,22 @@ namespace GraphQLCore
         /// <param name="services"></param>
         /// <param name="config"></param>
         /// <returns>An instance of IGraphQLBuilder that can be used to add types, queries, etc.</returns>
-        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Expression<Func<IGraphQLBuilder, IGraphQLBuilder>> config)
+        public static IGraphQLBuilder AddGraphQL(this IServiceCollection services, Expression<Func<IGraphQLBuilder, IGraphQLBuilder>> config = null)
         {
             var builder = new GraphQLBuilder(services);
 
-            config
-                .Compile()
-                (builder)
-                .Build();
+            if(config != null)
+            {
+                config
+                    .Compile()
+                    (builder)
+                    .Build();
 
-            return builder;
+                return null;
+            }
+                
+            else
+                return builder;
         }
     }
 }
