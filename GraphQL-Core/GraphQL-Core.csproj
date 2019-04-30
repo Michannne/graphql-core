@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>GraphQLCore</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Micah Elliott</Authors>
+    <Company>NationsHearing</Company>
+    <Description>A wrapper library for GraphQL.NET providing functionality that makes it easier for large-scale applications to use GraphQL.NET</Description>
+    <Copyright>NationsHearing</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Michannne/graphql-core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Michannne/graphql-core</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>GraphQL, GraphQL dotnet, GraphiQL</PackageTags>
+    <PackageReleaseNotes>Created the library</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\lbrown\Source\Repos\GraphQL-Core\GraphQL-Core\GraphQL-Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="2.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

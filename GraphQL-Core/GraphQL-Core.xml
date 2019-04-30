@@ -1,0 +1,314 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GraphQL-Core</name>
+    </assembly>
+    <members>
+        <member name="T:GraphQLCore.GraphQLCoreTypeWrapperGenerator">
+            <summary>
+            Responsible for dynamically creating C# classes to wrap instances of GenericType{T}
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Extensions.GraphQLExtensions">
+            <summary>
+            Contains extension methods for GraphQLCore
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Extensions.GraphQLExtensions.ConvertToGraphQLType(System.Type)">
+            <summary>
+            Given a C# Type instance that represents a value type, enumeration, or class, returns the appropriate GraphQL.NET Type
+            </summary>
+            <param name="cSharpType">The C# Type to convert</param>
+            <returns>An appropriate GraphQL.NET Type</returns>
+        </member>
+        <member name="T:GraphQLCore.Extensions.ReflectionExtensions">
+            <summary>
+            Extensions necessary when performing reflection-based logic in GraphQLCore
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Extensions.ReflectionExtensions.Implements(System.Type,System.Type)">
+            <summary>
+            Detects whether a given type, <paramref name="t"/>, implements the given interface, <paramref name="i"/>
+            </summary>
+            <param name="t">The implementation type</param>
+            <param name="i">The interface type</param>
+            <returns>True if <paramref name="t"/> implements <paramref name="i"/>, false otherwise </returns>
+        </member>
+        <member name="M:GraphQLCore.Extensions.ReflectionExtensions.FindAllDerivedTypes``1">
+            <summary>
+            Finds all Types which derive from a given base type
+            <para>This method searches the assembly which contains the given type </para>
+            </summary>
+            <typeparam name="T">The base type</typeparam>
+            <returns>A cref="List{Type}" containing all derived classes found </returns>
+        </member>
+        <member name="M:GraphQLCore.Extensions.ReflectionExtensions.FindAllDerivedTypes``1(System.Reflection.Assembly)">
+            <summary>
+            Finds all Types which derive from a given base type
+            <para>The search space is limited to within the given cref=Assembly </para>
+            </summary>
+            <typeparam name="T">The base type</typeparam>
+            <param name="assembly">The assembly to search within</param>
+            <returns>A cref="List{Type}" containing all derived classes found </returns>
+        </member>
+        <member name="M:GraphQLCore.Extensions.ReflectionExtensions.FindAllGraphQLDerivedTypes(System.Type)">
+            <summary>
+            Finds all Types which derive from the given type
+            <para>The search space is limited to the scope of dynamically-generated GraphQLCoreTypeWrapper types</para>
+            </summary>
+            <param name="T"></param>
+            <returns></returns>
+        </member>
+        <member name="T:GraphQLCore.GraphQL.GraphQLQuery">
+            <summary>
+            The type signature for GraphQLCore queries
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:GraphQLCore.GraphQL.IGraphQLConfiguration">
+            <summary>
+            An interface that can be used to provide builder configurations for GraphQLBuilder
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLConfiguration.Configure(GraphQLCore.GraphQL.IGraphQLBuilder)">
+            <summary>
+            Method which can be called to configure the builder
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="T:GraphQLCore.GraphQL.IGraphQLBuilder">
+            <summary>
+            Builder interface for GraphQL-Core
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.IGraphQLBuilder.Queries">
+            <value>Stores GraphQL Query instances</value>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.IGraphQLBuilder.GraphQLTypes">
+            <value>Stores GraphQL Type instances and their corresponding object types</value>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.IGraphQLBuilder.Mutators">
+            <value>Stores GraphQL Mutator instances and their corresponding object types</value>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLBuilder.Type``1">
+            <summary>
+            Adds a new virtual GraphQL Type-node based on the corresponding model definition to the object graph
+            </summary>
+            <typeparam name="T">The model class type</typeparam>
+            <returns>An instance of this GraphQBuilder</returns>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLBuilder.Stitch``2(System.String,System.Linq.Expressions.Expression{System.Func{``0,System.Object}},System.Func{System.Func{System.Object,System.Func{GraphQL.Types.ResolveFieldContext{``0},``1}}})">
+            <summary>
+            <para>"Stitches"-in a new field onto the provided type, accessible through the provided expression, and resolved through the given resolver</para>
+            <remarks>
+            This stitching functionality is much slower than any native join, such as Entity Framework's .Include(), which
+            injects JOIN statements directly in the SQL query.
+            This method is intended to be used when a user-defined type does not implicitly reference another user-defined type
+            </remarks>
+            </summary>
+            <typeparam name="A">The type which will be stitched onto</typeparam>
+            <typeparam name="BResult">The result returned when the new field is resolved</typeparam>
+            <param name="expr">The expression used to query the new field</param>
+            <param name="joinOn">The property of which the stitching will be based on</param>
+            <param name="joinTo">A method which takes an IDataUow and returns a method which takes the value of the current parent element, and returns a context resolver</param>
+            <returns></returns>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLBuilder.Query``1(GraphQLCore.GraphQL.GraphQLQuery)">
+            <summary>
+            <para>Adds a new virtual GraphQL Query-node which returns an object of the supplied C# type once resolved</para>
+            <para>This method will resolve any interface-based dependencies supplied to the query method</para>
+            </summary>
+            <typeparam name="T">The C# return type of the query</typeparam>
+            <param name="query">The method called when resolving this query</param>
+            <returns></returns>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLBuilder.Mutator``1">
+            <summary>
+            Adds a new virtual GraphQL Mutator-node which returns an object of the supplied C# type
+            This method will resolve any interface-based dependencies supplied to the query method
+            </summary>
+            <typeparam name="T">The C# return type of the query</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.IGraphQLBuilder.Build">
+            <summary>
+            Creates the schema using the the builder parameters and loads it into the IServiceCollection instance
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.GraphQL.GraphQLBuilder">
+            <summary>
+            Concrete implementation of the IGraphQLBuilder interface
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.GraphQLCore#GraphQL#IGraphQLBuilder#Queries">
+            <summary>
+            Default constructed to an empty list
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.GraphQLCore#GraphQL#IGraphQLBuilder#GraphQLTypes">
+            <summary>
+            Default constructed to an empty list
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.GraphQLCore#GraphQL#IGraphQLBuilder#Mutators">
+            <summary>
+            Default constructed to an empty list
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.Schema">
+            <summary>
+            Defaulted to null
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.Resolver">
+            <summary>
+            Defaulted to null
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.GraphQL.GraphQLBuilder.Services">
+            <summary>
+            Defaulted to null
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.GraphQL.GraphQLBuilder.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Creates a new GraphQLBuilder
+            </summary>
+            <param name="services">The service collection which will contain the added singletons</param>
+        </member>
+        <member name="T:GraphQLCore.GraphQLMiddleware">
+            <summary>
+            Extension methods for ASP.NET Core MVC Middleware for GraphQLCore
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.GraphQLMiddleware.AddGraphQL(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Linq.Expressions.Expression{System.Func{GraphQLCore.GraphQL.IGraphQLBuilder,GraphQLCore.GraphQL.IGraphQLBuilder}})">
+            <summary>
+            ASP.NET Core MVC Middleware for GraphQLCore
+            </summary>
+            <param name="services"></param>
+            <param name="config"></param>
+            <returns>An instance of IGraphQLBuilder that can be used to add types, queries, etc.</returns>
+        </member>
+        <member name="T:GraphQLCore.Queries.IGraphQLGenericQuery">
+            <summary>
+            Interface tag for GraphQLCore queries
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Queries.StitchedQuery">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.Queries.StitchedQuery.Fields_">
+            <summary>
+            List of resolved fields
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Queries.StitchedQuery.Build">
+            <summary>
+            Adds all resolved fields to the query
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Queries.GenericQuery`1">
+            <summary>
+            A user-defined query that acts as a container until the query is supplied to a StitchedQuery instance
+            </summary>
+            <typeparam name="T">The return type of the query</typeparam>
+        </member>
+        <member name="F:GraphQLCore.Queries.GenericQuery`1.StitchedQuery">
+            <summary>
+            An instance of StitchedQuery that will received the proxy query
+            </summary>
+        </member>
+        <member name="P:GraphQLCore.Queries.GenericQuery`1.Resolvers">
+            <summary>
+            A List of queries
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Queries.GenericQuery`1.#ctor(System.Collections.Generic.List{GraphQLCore.Resolvers.ITypedFieldResolver})">
+            <summary>
+            Receives a list of field resolvers to add into the container
+            </summary>
+            <param name="queries"></param>
+        </member>
+        <member name="M:GraphQLCore.Queries.GenericQuery`1.#ctor(GraphQLCore.Resolvers.ITypedFieldResolver)">
+            <summary>
+            Receives a field resolver to add into the container
+            </summary>
+            <param name="query"></param>
+        </member>
+        <member name="M:GraphQLCore.Queries.GenericQuery`1.Combine">
+            <summary>
+            Combines all fields into the singleton StitchedQuery
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Resolvers.IGenericFieldResolver">
+            <summary>
+            Interface for a generic field resolver
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Resolvers.IGenericFieldResolver.Invoke">
+            <summary>
+            When called, returns an instance of FieldType that can be added to any ObjectGraphType
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:GraphQLCore.Resolvers.ITypedFieldResolver">
+            <summary>
+            A typed-field resolver, which receives a type before returning a FieldType
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Resolvers.Query">
+            <summary>
+            An alias for a generic field resolver
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Resolvers.GenericFieldResolver">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Schemas.IGraphQLGenericSchema">
+            <summary>
+            Interface tag for GraphQLCore Schemas
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Schemas.SuperSchema">
+            <summary>
+            Schema which will be used to combine all user-provided queries
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Schemas.SuperSchema.#ctor(GraphQL.IDependencyResolver)">
+            <summary>
+            Creates a new GraphQL Schema-node using the provided dependency resolver
+            </summary>
+            <param name="resolver"></param>
+        </member>
+        <member name="T:GraphQLCore.Types.IGraphQLGenericType">
+            <summary>
+            Interface tag for GraphQLCore Types
+            </summary>
+        </member>
+        <member name="T:GraphQLCore.Types.GenericType`1">
+            <summary>
+            Acts a container for user-defined model fields for a GraphQL Type
+            </summary>
+            <typeparam name="T">User-defined model type</typeparam>
+        </member>
+        <member name="M:GraphQLCore.Types.GenericType`1.#ctor">
+            <summary>
+            Initializes the GraphQL Type, using the provided user-defined model
+            </summary>
+        </member>
+        <member name="M:GraphQLCore.Types.GenericType`1.Stitch``1(System.String,System.String,System.Func{System.Object,System.Func{GraphQL.Types.ResolveFieldContext{`0},``0}})">
+            <summary>
+            "Stitches"-in a new field onto the GraphQL type, based on a join property, and a method which takes the value of the current parent and returns a field resolver
+            </summary>
+            <typeparam name="BResult"></typeparam>
+            <param name="expression"></param>
+            <param name="joinOn"></param>
+            <param name="joinTo"></param>
+        </member>
+    </members>
+</doc>
