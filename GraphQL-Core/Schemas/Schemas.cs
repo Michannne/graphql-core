@@ -7,7 +7,7 @@ namespace GraphQLCore.Schemas
     /// <summary>
     /// Interface tag for GraphQLCore Schemas
     /// </summary>
-    internal interface IGraphQLGenericSchema { }
+    public interface IGraphQLGenericSchema { }
 
     /// <summary>
     /// Schema which will be used to combine all user-provided queries
