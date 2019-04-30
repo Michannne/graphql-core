@@ -9,7 +9,7 @@ namespace GraphQLCore.Extensions
     /// <summary>
     /// Extensions necessary when performing reflection-based logic in GraphQLCore
     /// </summary>
-    internal static class ReflectionExtensions
+    public static class ReflectionExtensions
     {
         /// <summary>
         /// Detects whether a given type, <paramref name="t"/>, implements the given interface, <paramref name="i"/>

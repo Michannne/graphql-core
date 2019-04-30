@@ -123,7 +123,7 @@ namespace GraphQLCore.GraphQL
         /// <summary>
         /// Defaulted to null
         /// </summary>
-        internal StitchedQuery Schema { get; set; }
+        public StitchedQuery Schema { get; set; }
 
         /// <summary>
         /// Defaulted to null

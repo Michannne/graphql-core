@@ -10,7 +10,7 @@ namespace GraphQLCore.Extensions
     /// <summary>
     /// Contains extension methods for GraphQLCore
     /// </summary>
-    internal static class GraphQLExtensions
+    public static class GraphQLExtensions
     {
         /// <summary>
         /// Given a C# Type instance that represents a value type, enumeration, or class, returns the appropriate GraphQL.NET Type

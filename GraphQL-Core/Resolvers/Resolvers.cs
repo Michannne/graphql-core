@@ -7,7 +7,7 @@ namespace GraphQLCore.Resolvers
     /// <summary>
     /// Interface for a generic field resolver
     /// </summary>
-    internal interface IGenericFieldResolver
+    public interface IGenericFieldResolver
     {
         /// <summary>
         /// When called, returns an instance of FieldType that can be added to any ObjectGraphType

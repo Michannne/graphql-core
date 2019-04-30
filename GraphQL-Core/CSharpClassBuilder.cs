@@ -10,7 +10,7 @@ namespace GraphQLCore
     /// <summary>
     /// Responsible for dynamically creating C# classes to wrap instances of GenericType{T}
     /// </summary>
-    internal static class GraphQLCoreTypeWrapperGenerator
+    public static class GraphQLCoreTypeWrapperGenerator
     {
         internal static AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
         internal static ModuleBuilder mdBuilder = null;

@@ -12,7 +12,7 @@ namespace GraphQLCore.Queries
     /// <summary>
     /// 
     /// </summary>
-    internal class StitchedQuery : ObjectGraphType
+    public class StitchedQuery : ObjectGraphType
     {
         /// <summary>
         /// List of resolved fields
@@ -35,7 +35,7 @@ namespace GraphQLCore.Queries
     /// A user-defined query that acts as a container until the query is supplied to a StitchedQuery instance
     /// </summary>
     /// <typeparam name="T">The return type of the query</typeparam>
-    internal class GenericQuery<T> : ObjectGraphType, IGraphQLGenericQuery
+    public class GenericQuery<T> : ObjectGraphType, IGraphQLGenericQuery
     {
         /// <summary>
         /// An instance of StitchedQuery that will received the proxy query

@@ -12,7 +12,7 @@ namespace GraphQLCore.Schemas
     /// <summary>
     /// Schema which will be used to combine all user-provided queries
     /// </summary>
-    internal class SuperSchema : Schema, IGraphQLGenericSchema
+    public class SuperSchema : Schema, IGraphQLGenericSchema
     {
         /// <summary>
         /// Creates a new GraphQL Schema-node using the provided dependency resolver
