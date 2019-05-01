@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/Michannne/graphql-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Michannne/graphql-core</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
-    <PackageTags>GraphQL, GraphQL dotnet, GraphiQL</PackageTags>
+    <PackageTags>GraphQL GraphQL-dotnet GraphiQL c# NationsHearing</PackageTags>
     <PackageReleaseNotes>Updated modifiers</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <Version>0.1.1</Version>
