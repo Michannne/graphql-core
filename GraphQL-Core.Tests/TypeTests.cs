@@ -23,9 +23,12 @@ namespace GraphQL_Core.Tests
         [DataRow(typeof(Book_WithEnumTypes))]
         [DataRow(typeof(Book_WithEnumerables))]
         [DataRow(typeof(Book_WithAdvancedEnumerables))]
+        [DataRow(typeof(Book_WithAuthor))]
         [DataRow(typeof(Author))]
         [DataRow(typeof(Author_WithValueTypes))]
         [DataRow(typeof(Author_WithEnumTypes))]
+        [DataRow(typeof(Author_WithEnumerableBooks))]
+        [DataRow(typeof(Author_WithManyManyBooks))]
         public void Test_AddType_HasDynamicallyCreatedModel(Type T)
         {
             var testMethod = this.GetType().GetMethod("Generic_Test_AddType_HasDynamicallyCreatedModel");
@@ -40,9 +43,12 @@ namespace GraphQL_Core.Tests
         [DataRow(typeof(Book_WithEnumTypes))]
         [DataRow(typeof(Book_WithEnumerables))]
         [DataRow(typeof(Book_WithAdvancedEnumerables))]
+        [DataRow(typeof(Book_WithAuthor))]
         [DataRow(typeof(Author))]
         [DataRow(typeof(Author_WithValueTypes))]
         [DataRow(typeof(Author_WithEnumTypes))]
+        [DataRow(typeof(Author_WithEnumerableBooks))]
+        [DataRow(typeof(Author_WithManyManyBooks))]
         public void Test_AddType_HasFields(Type T)
         {
             var testMethod = this.GetType().GetMethod("Generic_Test_AddType_HasFields");
@@ -57,9 +63,12 @@ namespace GraphQL_Core.Tests
         [DataRow(typeof(Book_WithEnumTypes))]
         [DataRow(typeof(Book_WithEnumerables))]
         [DataRow(typeof(Book_WithAdvancedEnumerables))]
+        [DataRow(typeof(Book_WithAuthor))]
         [DataRow(typeof(Author))]
         [DataRow(typeof(Author_WithValueTypes))]
         [DataRow(typeof(Author_WithEnumTypes))]
+        [DataRow(typeof(Author_WithEnumerableBooks))]
+        [DataRow(typeof(Author_WithManyManyBooks))]
         public void Test_AddType_IsQueryable(Type T)
         {
             var testMethod = this.GetType().GetMethod("Generic_Test_AddType_IsQueryable");

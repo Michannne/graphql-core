@@ -65,4 +65,9 @@ namespace GraphQL_Core.Tests.Models
     {
         public BookType Type { get; set; }
     }
+
+    public class Book_WithAuthor : Book
+    {
+        public Author Author { get; set; }
+    }
 }
