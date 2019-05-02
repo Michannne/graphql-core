@@ -1,4 +1,5 @@
 ﻿using GraphQL_Core.Tests.Models.Enum;
+using GraphQL_Core.Tests.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,5 +67,10 @@ namespace GraphQL_Core.Tests.Models
     public class Author_WithManyManyBooks : Author
     {
         public IEnumerable<IQueryable<IList<Book>>> ManyBooks { get; set; }
+    }
+
+    public class Author_WithCommonInterface : Author, ICommonInterface
+    {
+        public int DumbField { get; set; }
     }
 }
