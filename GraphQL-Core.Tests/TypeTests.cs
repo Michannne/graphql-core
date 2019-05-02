@@ -49,6 +49,26 @@ namespace GraphQL_Core.Tests
         [DataRow(typeof(Author_WithEnumTypes))]
         [DataRow(typeof(Author_WithEnumerableBooks))]
         [DataRow(typeof(Author_WithManyManyBooks))]
+        public void Test_AddType_CanAddDuplicates(Type T)
+        {
+            var testMethod = this.GetType().GetMethod("Generic_Test_AddType_CanAddDuplicates");
+            testMethod.MakeGenericMethod(T).Invoke(this, null);
+        }
+
+        [TestMethod]
+        [TestCategory("Types")]
+        [DataTestMethod()]
+        [DataRow(typeof(Book))]
+        [DataRow(typeof(Book_WithValueTypes))]
+        [DataRow(typeof(Book_WithEnumTypes))]
+        [DataRow(typeof(Book_WithEnumerables))]
+        [DataRow(typeof(Book_WithAdvancedEnumerables))]
+        [DataRow(typeof(Book_WithAuthor))]
+        [DataRow(typeof(Author))]
+        [DataRow(typeof(Author_WithValueTypes))]
+        [DataRow(typeof(Author_WithEnumTypes))]
+        [DataRow(typeof(Author_WithEnumerableBooks))]
+        [DataRow(typeof(Author_WithManyManyBooks))]
         public void Test_AddType_HasFields(Type T)
         {
             var testMethod = this.GetType().GetMethod("Generic_Test_AddType_HasFields");
@@ -100,6 +120,19 @@ namespace GraphQL_Core.Tests
         {
             initializer.Init();
             initializer.services.AddGraphQL()
+                .Type<T>()
+                .Build();
+
+            var dynamicallyCreatedClass = GraphQLCoreTypeWrapperGenerator.GetDerivedGenericUserType<GenericType<T>>();
+
+            Assert.IsNotNull(dynamicallyCreatedClass);
+        }
+
+        public void Generic_Test_AddType_CanAddDuplicates<T>()
+        {
+            initializer.Init();
+            initializer.services.AddGraphQL()
+                .Type<T>()
                 .Type<T>()
                 .Build();
 
