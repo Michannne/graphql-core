@@ -67,6 +67,24 @@ namespace GraphQLCore.Extensions
                             returnType = typeof(bool);
                         }
                         break;
+                    case Type date when false
+                        || cSharpType == typeof(DateTime):
+                        {
+                            returnType = typeof(DateTimeGraphType);
+                        }
+                        break;
+                    case Type time when false
+                        || cSharpType == typeof(TimeSpan):
+                        {
+                            returnType = typeof(TimeSpanSecondsGraphType);
+                        }
+                        break;
+                    case Type timeoffset when false
+                        || cSharpType == typeof(DateTimeOffset):
+                        {
+                            returnType = typeof(DateTimeOffsetGraphType);
+                        }
+                        break;
                     case Type guid when false
                         || cSharpType == typeof(Guid):
                         {
