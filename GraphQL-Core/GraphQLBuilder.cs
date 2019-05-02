@@ -153,6 +153,7 @@ namespace GraphQLCore.GraphQL
 
                 return service.ImplementationInstance;
             });
+
             Schema = schema;
             Resolver = resolver;
             Services = services;
@@ -163,7 +164,11 @@ namespace GraphQLCore.GraphQL
         IGraphQLBuilder IGraphQLBuilder.Type<T>()
         {
             var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
-            var graphQlTypeInstance = new GenericType<T>
+
+            if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
+                return this;
+
+            var graphQlTypeInstance = new GenericType<T>(this)
             {
                 Name = typeof(T).Name
             };

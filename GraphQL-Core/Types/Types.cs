@@ -1,5 +1,6 @@
 ﻿using GraphQL.Types;
 using GraphQLCore.Extensions;
+using GraphQLCore.GraphQL;
 using System;
 
 namespace GraphQLCore.Types
@@ -10,7 +11,7 @@ namespace GraphQLCore.Types
     public interface IGraphQLGenericType { }
 
     /// <summary>
-    /// Acts a container for user-defined model fields for a GraphQL Type
+    /// Acts as a container for user-defined model fields for a GraphQL Type
     /// </summary>
     /// <typeparam name="T">User-defined model type</typeparam>
     public class GenericType<T> : ObjectGraphType<T>, IGraphQLGenericType
@@ -18,13 +19,34 @@ namespace GraphQLCore.Types
         /// <summary>
         /// Initializes the GraphQL Type, using the provided user-defined model
         /// </summary>
-        public GenericType()
+        public GenericType(IGraphQLBuilder builder = null)
         {
             var typedClass = typeof(T);
             var props = typedClass.GetProperties();
             foreach (var prop in props)
             {
-                Field(prop.PropertyType.ConvertToGraphQLType(), prop.Name);
+                Type propGraphQLType = null;
+
+                propGraphQLType = prop.PropertyType.TryConvertToGraphQLType();
+
+                if(propGraphQLType is null)
+                {
+                    builder
+                        .GetType()
+                        .GetInterface("IGraphQLBuilder")
+                        .GetMethod("Type")
+                        .MakeGenericMethod(prop.PropertyType)
+                        .Invoke(builder, null);
+
+                    propGraphQLType = typeof(GenericType<>).MakeGenericType(prop.PropertyType);
+
+                    if(propGraphQLType is null)
+                        throw new InvalidCastException(
+                            $"{prop.Name} was not automatically convertible into a GraphQL type. " +
+                            $"Try explicitly adding this Type through the GraphQL-Core middleware.");
+                }
+
+                Field(propGraphQLType, prop.Name);
             }
         }
 
