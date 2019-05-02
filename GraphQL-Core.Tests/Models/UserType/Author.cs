@@ -1,6 +1,8 @@
 ﻿using GraphQL_Core.Tests.Models.Enum;
+using GraphQL_Core.Tests.Models.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GraphQL_Core.Tests.Models
@@ -50,5 +52,25 @@ namespace GraphQL_Core.Tests.Models
     public class Author_WithEnumTypes : Author
     {
         public AuthorType Type { get; set; }
+    }
+
+    public class Author_WithBooks : Author
+    {
+        public Book Book { get; set; }
+    }
+
+    public class Author_WithEnumerableBooks : Author
+    {
+        public IEnumerable<Book> Books { get; set; }
+    }
+
+    public class Author_WithManyManyBooks : Author
+    {
+        public IEnumerable<IQueryable<IList<Book>>> ManyBooks { get; set; }
+    }
+
+    public class Author_WithCommonInterface : Author, ICommonInterface
+    {
+        public int DumbField { get; set; }
     }
 }

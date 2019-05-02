@@ -1,4 +1,5 @@
 ﻿using GraphQL_Core.Tests.Models.Enum;
+using GraphQL_Core.Tests.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,6 +49,11 @@ namespace GraphQL_Core.Tests.Models
         public BookDescription Info { get; set; }
     }
 
+    public class Book_WithDateTime : Book
+    {
+        public DateTime PublishDate { get; set; }
+    }
+
     public class Book_WithEnumerables : Book
     {
         public List<int> OwnerIds { get; set; }
@@ -64,5 +70,57 @@ namespace GraphQL_Core.Tests.Models
     public class Book_WithEnumTypes : Book
     {
         public BookType Type { get; set; }
+    }
+
+    public class Book_WithAuthor : Book
+    {
+        public Author Author { get; set; }
+    }
+
+    public class Book_WithVirtualAuthor : Book
+    {
+        public virtual Author Author { get; set; }
+    }
+
+    public class Book_WithVirtualAuthorAndId : Book
+    {
+        public long AuthorId { get; set; }
+        public virtual Author Author { get; set; }
+    }
+
+    public class Book_WithTwoAuthors : Book
+    {
+        public virtual Author AuthorA { get; set; }
+        public virtual Author AuthorB { get; set; }
+    }
+
+    public class Book_WithDuplicateBaseTypes : Book
+    {
+        public long Duplicate_BookId { get; set; }
+        public string Duplicate_Name { get; set; }
+        public int Duplicate_Number { get; set; }
+        public bool Duplicate_IsAvailable { get; set; }
+        public float Duplicate_Rating { get; set; }
+        public double Duplicate_Cost { get; set; }
+    }
+
+    public class Book_WithCommonInterface : Book, ICommonInterface
+    {
+        public int DumbField { get; set; }
+    }
+
+    public class Book_WithSameInterfaceAsProperty : Book, ICommonInterface
+    {
+        public Author_WithCommonInterface Author { get; set; }
+    }
+
+    public class Book_WithSameInterfaceAsProperty_WithVirtualProperty : Book, ICommonInterface
+    {
+        public virtual Author_WithCommonInterface Author { get; set; }
+    }
+
+    public class Book_WithConstructor : Book
+    {
+        public Book_WithConstructor() { }
     }
 }
