@@ -1,7 +1,8 @@
 language: csharp
 solution: GraphQL-Core.sln
 mono: none
-dotnet: 2.2.106
+dotnet: 2.2
 script:
   - dotnet restore
+  - dotnet build
   - dotnet test
