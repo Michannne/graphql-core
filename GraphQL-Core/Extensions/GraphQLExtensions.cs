@@ -19,7 +19,10 @@ namespace GraphQLCore.Extensions
 
 
             if (cSharpType.IsEnum)
+            {
                 returnType = typeof(EnumerationGraphType<>).MakeGenericType(cSharpType);
+                nullable = true;
+            } 
 
             else if (false
                 || cSharpType.IsValueType

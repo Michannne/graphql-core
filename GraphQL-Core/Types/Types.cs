@@ -19,6 +19,12 @@ namespace GraphQLCore.Types
         /// <summary>
         /// Initializes the GraphQL Type, using the provided user-defined model
         /// </summary>
+        
+        public GenericType()
+            : this(null)
+        {
+        }
+
         public GenericType(IGraphQLBuilder builder = null)
         {
             var typedClass = typeof(T);
@@ -29,7 +35,7 @@ namespace GraphQLCore.Types
 
                 propGraphQLType = prop.PropertyType.TryConvertToGraphQLType();
 
-                if(propGraphQLType is null)
+                if(propGraphQLType is null || propGraphQLType.IsEnum)
                 {
                     builder
                         .GetType()

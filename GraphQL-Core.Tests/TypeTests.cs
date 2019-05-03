@@ -5,6 +5,8 @@ using GraphQLCore.Types;
 using System;
 using GraphQLCore.Resolvers;
 using GraphQLCore.GraphQL;
+using GraphQL_Core.Tests.Models.Enum;
+using GraphQL.Types;
 
 namespace GraphQL_Core.Tests
 {
@@ -200,6 +202,7 @@ namespace GraphQL_Core.Tests
         {
             initializer.Init();
             var builder = initializer.services.AddGraphQL()
+                .Type<EnumerationGraphType<BookType>>()
                 .Type<T>();
 
             foreach (var field in typeof(T).GetProperties())
@@ -207,7 +210,8 @@ namespace GraphQL_Core.Tests
                 GraphQLQuery defaultQuery = 
                     () => new Query() {
                         Expression = $"get_{field.Name}",
-                        Resolver = (context) => Activator.CreateInstance(field.PropertyType)
+                        Resolver = (context) => 
+                            field.PropertyType.DefaultUnknownProperty()
                     };
 
                 var methodInfo = builder
@@ -234,6 +238,7 @@ namespace GraphQL_Core.Tests
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
 
+                //add sub-selection is field is class, use all props
                 (var hasError, var result) = initializer.Ask($@"
                     {{
                         get_{field.Name}

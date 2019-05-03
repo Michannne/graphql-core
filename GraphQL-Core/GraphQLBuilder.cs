@@ -163,16 +163,30 @@ namespace GraphQLCore.GraphQL
 
         IGraphQLBuilder IGraphQLBuilder.Type<T>()
         {
-            var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
-
-            if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
-                return this;
-
-            var graphQlTypeInstance = new GenericType<T>(this)
+            if(typeof(T).IsGenericType && typeof(T).GenericTypeArguments[0].IsEnum)
             {
-                Name = typeof(T).Name
-            };
-            ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+                var enumType = typeof(T).GenericTypeArguments[0];
+
+                if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(typeof(T)))
+                    return this;
+
+                var graphQlTypeInstance = Activator.CreateInstance<T>();
+                ((IGraphQLBuilder)this).GraphQLTypes.Add(typeof(T), graphQlTypeInstance);
+            }
+            else
+            {
+                var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
+
+                if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
+                    return this;
+
+                var graphQlTypeInstance = new GenericType<T>(this)
+                {
+                    Name = typeof(T).Name
+                };
+                ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+            }
+            
             return this;
         }
 
