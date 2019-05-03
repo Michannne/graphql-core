@@ -233,6 +233,14 @@ namespace GraphQL_Core.Tests
             foreach (var field in typeof(T).GetProperties())
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
+
+                (var error, var result) = initializer.Ask($@"
+                    {{
+                        get_{field.Name}
+                    }}
+                ");
+
+                A
             }
         }
     }

@@ -23,9 +23,15 @@ namespace GraphQLCore
         {
             if (genericTypeParentClasses.ContainsKey(typeof(GenericType<T>)))
                 return genericTypeParentClasses[typeof(GenericType<T>)];
-            TypeBuilder tb = GetTypeBuilder(typeof(T).Name + typeNameAppend);
-            _ = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+
+            TypeBuilder tb = GetTypeBuilder(typeof(T).Name + typeNameAppend, typeof(GenericType<T>));
+            tb.DefineDefaultConstructor(
+                MethodAttributes.Public 
+                | MethodAttributes.SpecialName 
+                | MethodAttributes.RTSpecialName);
+
             tb.SetParent(typeof(GenericType<T>));
+
             TypeInfo objectTypeInfo = tb.CreateTypeInfo();
             Type type = objectTypeInfo.AsType();
 
@@ -53,11 +59,12 @@ namespace GraphQLCore
         private static AssemblyName CreateDynamicAssemblyName()
         {
             var currentAssemblyName = Assembly.GetEntryAssembly().GetName().Clone() as AssemblyName;
-            currentAssemblyName.Name += asmNameAppend;
+            var asmName = new AssemblyName(Guid.NewGuid().ToString());
+            asmName.Name = currentAssemblyName.Name + asmNameAppend;
             return currentAssemblyName;
         }
 
-        private static TypeBuilder GetTypeBuilder(string typeName)
+        private static TypeBuilder GetTypeBuilder(string typeName, Type baseClass)
         {
             var typeSignature = typeName;
 
@@ -71,7 +78,7 @@ namespace GraphQLCore
                     TypeAttributes.AnsiClass |
                     TypeAttributes.BeforeFieldInit |
                     TypeAttributes.AutoLayout,
-                    null);
+                    baseClass);
             return tb;
         }
     }
