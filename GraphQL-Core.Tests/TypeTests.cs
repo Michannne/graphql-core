@@ -234,13 +234,13 @@ namespace GraphQL_Core.Tests
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
 
-                (var error, var result) = initializer.Ask($@"
+                (var hasError, var result) = initializer.Ask($@"
                     {{
                         get_{field.Name}
                     }}
-                ");
+                ", null, null);
 
-                A
+                Assert.IsFalse(hasError);
             }
         }
     }
