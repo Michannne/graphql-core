@@ -7,6 +7,10 @@ using GraphQLCore.Resolvers;
 using GraphQLCore.GraphQL;
 using GraphQL_Core.Tests.Models.Enum;
 using GraphQL.Types;
+using GraphQL;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace GraphQL_Core.Tests
 {
@@ -114,7 +118,7 @@ namespace GraphQL_Core.Tests
         [TestMethod]
         [TestCategory("Types")]
         [DataTestMethod()]
-        [DataRow(typeof(Book))]
+        //[DataRow(typeof(Book))]
         [DataRow(typeof(Book_WithValueTypes))]
         [DataRow(typeof(Book_WithEnumTypes))]
         [DataRow(typeof(Book_WithEnumerables))]
@@ -202,7 +206,6 @@ namespace GraphQL_Core.Tests
         {
             initializer.Init();
             var builder = initializer.services.AddGraphQL()
-                .Type<EnumerationGraphType<BookType>>()
                 .Type<T>();
 
             foreach (var field in typeof(T).GetProperties())
@@ -238,15 +241,44 @@ namespace GraphQL_Core.Tests
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
 
+                var subFields = ConstructSubFieldSelector(field.PropertyType, "");
+
                 //add sub-selection is field is class, use all props
                 (var hasError, var result) = initializer.Ask($@"
                     {{
-                        get_{field.Name}
+                        get_{field.Name} {subFields}
                     }}
                 ", null, null);
 
                 Assert.IsFalse(hasError);
             }
+        }
+
+        public string ConstructSubFieldSelector(Type T, string subFieldSelector = "")
+        {
+            var implementedInterfaces = T.GetInterfaces().OfType<Type>().ToList();
+
+            if (T.IsClass
+                && !implementedInterfaces.Contains(typeof(IList))
+                && !implementedInterfaces.Contains(typeof(IEnumerable))
+                && !implementedInterfaces.Contains(typeof(IQueryable))
+                && T != typeof(string) 
+                && T.GetProperties().Length > 0)
+            {
+                subFieldSelector += "{";
+
+                foreach (var subfield in T.GetProperties())
+                {
+                    if (subfield.PropertyType.IsClass && subfield.PropertyType != typeof(string))
+                        subFieldSelector += ConstructSubFieldSelector(subfield.PropertyType, subFieldSelector);
+                    else
+                        subFieldSelector += "\n" + subfield.Name.ToCamelCase();
+                }
+
+                subFieldSelector += "\n}";
+            }
+
+            return subFieldSelector;
         }
     }
 }

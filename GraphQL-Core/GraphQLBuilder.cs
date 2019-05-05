@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using GraphQLCore.Extensions;
+using GraphQLExtensions = GraphQLCore.Extensions.GraphQLExtensions;
 
 namespace GraphQLCore.GraphQL
 {
@@ -159,13 +160,15 @@ namespace GraphQLCore.GraphQL
             Services = services;
             services.AddSingleton(schema);
             services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+
+            GraphQLExtensions.AddUnsupportedGraphQLConversions();
         }
 
         IGraphQLBuilder IGraphQLBuilder.Type<T>()
         {
-            if(typeof(T).IsGenericType && typeof(T).GenericTypeArguments[0].IsEnum)
+            if(GraphQLExtensions.IsExtendedGraphQLType(typeof(T)))
             {
-                var enumType = typeof(T).GenericTypeArguments[0];
+                var type = typeof(T).IsGenericType ? typeof(T).GenericTypeArguments[0] : typeof(T);
 
                 if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(typeof(T)))
                     return this;

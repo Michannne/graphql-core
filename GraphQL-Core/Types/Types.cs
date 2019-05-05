@@ -35,16 +35,18 @@ namespace GraphQLCore.Types
 
                 propGraphQLType = prop.PropertyType.TryConvertToGraphQLType();
 
-                if(propGraphQLType is null || propGraphQLType.IsEnum)
+                if(propGraphQLType is null || GraphQLExtensions.IsExtendedGraphQLType(propGraphQLType))
                 {
+                    var resolvedType = propGraphQLType ?? prop.PropertyType;
+
                     builder
                         .GetType()
                         .GetInterface("IGraphQLBuilder")
                         .GetMethod("Type")
-                        .MakeGenericMethod(prop.PropertyType)
+                        .MakeGenericMethod(resolvedType)
                         .Invoke(builder, null);
 
-                    propGraphQLType = typeof(GenericType<>).MakeGenericType(prop.PropertyType);
+                    propGraphQLType = typeof(GenericType<>).MakeGenericType(resolvedType);
 
                     if(propGraphQLType is null)
                         throw new InvalidCastException(

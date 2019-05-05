@@ -62,6 +62,7 @@ namespace GraphQLCore.Extensions
                         || cSharpType == typeof(string):
                         {
                             returnType = typeof(string);
+                            nullable = true;
                         }
                         break;
                     case Type boolean when false
@@ -74,24 +75,28 @@ namespace GraphQLCore.Extensions
                         || cSharpType == typeof(DateTime):
                         {
                             returnType = typeof(DateTimeGraphType);
+                            nullable = true;
                         }
                         break;
                     case Type time when false
                         || cSharpType == typeof(TimeSpan):
                         {
                             returnType = typeof(TimeSpanSecondsGraphType);
+                            nullable = true;
                         }
                         break;
                     case Type timeoffset when false
                         || cSharpType == typeof(DateTimeOffset):
                         {
                             returnType = typeof(DateTimeOffsetGraphType);
+                            nullable = true;
                         }
                         break;
                     case Type guid when false
                         || cSharpType == typeof(Guid):
                         {
                             returnType = typeof(GuidGraphType);
+                            nullable = true;
                         }
                         break;
                     case Type str when false
@@ -100,6 +105,7 @@ namespace GraphQLCore.Extensions
                             var genericType = typeof(GenericType<>).MakeGenericType(str);
                             var derived = genericType.GetDerivedGenericUserType();
                             returnType = derived;
+                            nullable = true;
                         }
                         break;
                     default:
@@ -126,6 +132,7 @@ namespace GraphQLCore.Extensions
                 if(!underClass.Implements(typeof(IGraphType)))
                     underClass = underClass.GetGraphTypeFromType(true);
                 returnType = typeof(ListGraphType<>).MakeGenericType(underClass);
+                nullable = true;
             }
 
             else
@@ -133,6 +140,7 @@ namespace GraphQLCore.Extensions
                 var genericType = typeof(GenericType<>).MakeGenericType(cSharpType);
                 var derived = genericType.GetDerivedGenericUserType();
                 returnType = derived;
+                nullable = true;
             }
 
             return (returnType, nullable);
@@ -170,6 +178,33 @@ namespace GraphQLCore.Extensions
 
             else
                 return graphQlType.GetGraphTypeFromType(nullable);
+        }
+
+        /// <summary>
+        /// GraphQL.NET does not support a number of conversions
+        /// </summary>
+        public static void AddUnsupportedGraphQLConversions()
+        {
+            ValueConverter.Register(typeof(decimal), typeof(double), GraphQLNETValueConversions.DecimalToDouble);
+        }
+
+        public static bool IsExtendedGraphQLType(Type T)
+        {
+            return T.BaseType == typeof(EnumerationGraphType)
+                    || T == typeof(GuidGraphType)
+                    || T == typeof(DateTimeGraphType)
+                    || T == typeof(DateTimeOffsetGraphType)
+                    || T == typeof(TimeSpanSecondsGraphType)
+                    || T == typeof(TimeSpanMillisecondsGraphType);
+        }
+
+        public static string ToCamelCase(this string str)
+        {
+            if (!string.IsNullOrEmpty(str) && str.Length > 1)
+            {
+                return Char.ToLowerInvariant(str[0]) + str.Substring(1);
+            }
+            return str;
         }
     }
 }
