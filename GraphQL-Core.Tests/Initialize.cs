@@ -36,25 +36,32 @@ namespace GraphQL_Core.Tests
             GraphQLCoreTypeWrapperGenerator.Clear();
         }
 
-        public (bool error, ExecutionResult) Ask(string query, string operation, JObject variables)
+        public (bool error, ExecutionResult) Ask(string query, string operation = null, JObject variables = null)
         {
-            ISchema schema = resolver.Resolve<ISchema>();
-            var inputs = variables?.ToInputs();
-
-            var executionOptions = new ExecutionOptions()
+            try
             {
-                Schema = schema,
-                Query = query,
-                Inputs = inputs,
-                ExposeExceptions = true,
-                EnableMetrics = true
-            };
+                ISchema schema = resolver.Resolve<ISchema>();
+                var inputs = variables?.ToInputs();
 
-            var resultTask = executer.ExecuteAsync(executionOptions);
-            resultTask.Wait();
-            var result = resultTask.Result;
+                var executionOptions = new ExecutionOptions()
+                {
+                    Schema = schema,
+                    Query = query,
+                    Inputs = inputs,
+                    ExposeExceptions = true,
+                    EnableMetrics = true
+                };
 
-            return (result.Errors != null && result.Errors.Any(), result);
+                var resultTask = executer.ExecuteAsync(executionOptions);
+                resultTask.Wait();
+                var result = resultTask.Result;
+
+                return (result.Errors != null && result.Errors.Any(), result);
+            }
+            catch(Exception e)
+            {
+                return (false, null);
+            }
         }
     }
 }

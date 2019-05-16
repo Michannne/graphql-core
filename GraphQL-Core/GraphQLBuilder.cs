@@ -231,6 +231,10 @@ namespace GraphQLCore.GraphQL
 
             graphQlTypeAInstance.Stitch(expr, propertyName, joinTo());
 
+            //Remove references of A type from BResult
+            (((IGraphQLBuilder)this).GraphQLTypes[userTypeB] as GenericType<BResult>)
+                .RemoveFieldType(userTypeA);
+
             return this;
         }
 

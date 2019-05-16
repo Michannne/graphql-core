@@ -239,44 +239,17 @@ namespace GraphQL_Core.Tests
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
 
-                var subFields = ConstructSubFieldSelector(field.PropertyType, "");
+                var subFields = TestExtensions.ConstructSubFieldSelector(field.PropertyType, "");
 
                 //add sub-selection is field is class, use all props
                 (var hasError, var result) = initializer.Ask($@"
                     {{
                         get_{field.Name} {subFields}
                     }}
-                ", null, null);
+                ");
 
                 Assert.IsFalse(hasError);
             }
-        }
-
-        public string ConstructSubFieldSelector(Type T, string subFieldSelector = "")
-        {
-            var implementedInterfaces = T.GetInterfaces().OfType<Type>().ToList();
-
-            if (T.IsClass
-                && !implementedInterfaces.Contains(typeof(IList))
-                && !implementedInterfaces.Contains(typeof(IEnumerable))
-                && !implementedInterfaces.Contains(typeof(IQueryable))
-                && T != typeof(string) 
-                && T.GetProperties().Length > 0)
-            {
-                subFieldSelector += "{";
-
-                foreach (var subfield in T.GetProperties())
-                {
-                    if (subfield.PropertyType.IsClass && subfield.PropertyType != typeof(string))
-                        subFieldSelector += ConstructSubFieldSelector(subfield.PropertyType, subFieldSelector);
-                    else
-                        subFieldSelector += "\n" + subfield.Name.ToCamelCase();
-                }
-
-                subFieldSelector += "\n}";
-            }
-
-            return subFieldSelector;
         }
     }
 }

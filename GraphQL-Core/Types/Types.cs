@@ -3,6 +3,8 @@ using GraphQLCore.Exceptions;
 using GraphQLCore.Extensions;
 using GraphQLCore.GraphQL;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace GraphQLCore.Types
 {
@@ -112,6 +114,13 @@ namespace GraphQLCore.Types
             {
                 throw new GraphQLCoreStitchException($"An error occurred while attempting to stitch a field of type {nameof(BResult)} into type {nameof(T)}", e);
             }
+        }
+
+        public void RemoveFieldType(Type ofType)
+        {
+            var currentFields = ((ObjectGraphType<T>)this).Fields;
+            FieldInfo fi = ((ObjectGraphType<T>)this).GetType().BaseType.BaseType.GetField("_fields", BindingFlags.NonPublic | BindingFlags.Instance);
+            fi.SetValue(this, currentFields.Where(field => field.Type != ofType).ToList());
         }
     }
 }
