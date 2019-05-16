@@ -1,5 +1,6 @@
 using GraphQL;
 using GraphQL.Types;
+using GraphQLCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -32,6 +33,7 @@ namespace GraphQL_Core.Tests
 
                 return service.ImplementationInstance;
             });
+            GraphQLCoreTypeWrapperGenerator.Clear();
         }
 
         public (bool error, ExecutionResult) Ask(string query, string operation, JObject variables)

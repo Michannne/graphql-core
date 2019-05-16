@@ -160,34 +160,44 @@ namespace GraphQLCore.GraphQL
             Services = services;
             services.AddSingleton(schema);
             services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+            //services.AddSingleton<GuidGraphType>();
+            //services.AddSingleton<EnumerationGraphType>();
+            //services.AddSingleton<DateTimeGraphType>();
 
             GraphQLExtensions.AddUnsupportedGraphQLConversions();
         }
 
         IGraphQLBuilder IGraphQLBuilder.Type<T>()
         {
-            if(GraphQLExtensions.IsExtendedGraphQLType(typeof(T)))
+            try
             {
-                var type = typeof(T).IsGenericType ? typeof(T).GenericTypeArguments[0] : typeof(T);
-
-                if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(typeof(T)))
-                    return this;
-
-                var graphQlTypeInstance = Activator.CreateInstance<T>();
-                ((IGraphQLBuilder)this).GraphQLTypes.Add(typeof(T), graphQlTypeInstance);
-            }
-            else
-            {
-                var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
-
-                if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
-                    return this;
-
-                var graphQlTypeInstance = new GenericType<T>(this)
+                if (GraphQLExtensions.IsExtendedGraphQLType(typeof(T)))
                 {
-                    Name = typeof(T).Name
-                };
-                ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+                    var type = typeof(T).IsGenericType ? typeof(T).GenericTypeArguments[0] : typeof(T);
+
+                    if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(typeof(T)))
+                        return this;
+
+                    var graphQlTypeInstance = Activator.CreateInstance<T>();
+                    ((IGraphQLBuilder)this).GraphQLTypes.Add(typeof(T), graphQlTypeInstance);
+                }
+                else
+                {
+                    var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
+
+                    if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
+                        return this;
+
+                    var graphQlTypeInstance = new GenericType<T>(this)
+                    {
+                        Name = typeof(T).Name
+                    };
+                    ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
             }
             
             return this;
