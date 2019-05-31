@@ -118,9 +118,16 @@ namespace GraphQLCore.Types
 
         public void RemoveFieldType(Type ofType)
         {
-            var currentFields = ((ObjectGraphType<T>)this).Fields;
-            FieldInfo fi = ((ObjectGraphType<T>)this).GetType().BaseType.BaseType.GetField("_fields", BindingFlags.NonPublic | BindingFlags.Instance);
-            fi.SetValue(this, currentFields.Where(field => field.Type != ofType).ToList());
+            try
+            {
+                var currentFields = ((ObjectGraphType<T>)this).Fields;
+                FieldInfo fi = ((ObjectGraphType<T>)this).GetType().BaseType.BaseType.GetField("_fields", BindingFlags.NonPublic | BindingFlags.Instance);
+                fi.SetValue(this, currentFields.Where(field => field.Type != ofType).ToList());
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreTypeException($"An error occurred while attempted to remove field of type {nameof(ofType)} from {nameof(T)}. Refer to inner exception for details", e);
+            }
         }
     }
 }

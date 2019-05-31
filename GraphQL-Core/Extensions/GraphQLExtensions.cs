@@ -13,17 +13,19 @@ namespace GraphQLCore.Extensions
     /// </summary>
     public static class GraphQLExtensions
     {
-        public static (Type, bool) GetConvertibleBaseCSharpType(this Type cSharpType)
+        public static (Type, bool, Type) GetConvertibleBaseCSharpType(this Type cSharpType)
         {
             try
             {
                 Type returnType = null;
                 bool nullable = false;
+                Type baseGraphQLType = null;
 
 
                 if (cSharpType.IsEnum)
                 {
                     returnType = typeof(EnumerationGraphType<>).MakeGenericType(cSharpType);
+                    baseGraphQLType = returnType;
                     nullable = true;
                 }
 
@@ -50,6 +52,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(ushort):
                             {
                                 returnType = typeof(int);
+                                baseGraphQLType = returnType;
                             }
                             break;
                         case Type floaty when false
@@ -58,6 +61,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(double):
                             {
                                 returnType = typeof(double);
+                                baseGraphQLType = returnType;
                             }
                             break;
                         case Type alpha when false
@@ -65,6 +69,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(string):
                             {
                                 returnType = typeof(string);
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -72,12 +77,14 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(bool):
                             {
                                 returnType = typeof(bool);
+                                baseGraphQLType = returnType;
                             }
                             break;
                         case Type date when false
                             || cSharpType == typeof(DateTime):
                             {
                                 returnType = typeof(DateTimeGraphType);
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -85,6 +92,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(TimeSpan):
                             {
                                 returnType = typeof(TimeSpanSecondsGraphType);
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -92,6 +100,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(DateTimeOffset):
                             {
                                 returnType = typeof(DateTimeOffsetGraphType);
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -99,6 +108,7 @@ namespace GraphQLCore.Extensions
                             || cSharpType == typeof(Guid):
                             {
                                 returnType = typeof(GuidGraphType);
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -108,6 +118,7 @@ namespace GraphQLCore.Extensions
                                 var genericType = typeof(GenericType<>).MakeGenericType(str);
                                 var derived = genericType.GetDerivedGenericUserType();
                                 returnType = derived;
+                                baseGraphQLType = returnType;
                                 nullable = true;
                             }
                             break;
@@ -129,12 +140,13 @@ namespace GraphQLCore.Extensions
                     var listType = cSharpType.GenericTypeArguments[0];
 
                     if (listType is null)
-                        return (null, false);
+                        return (null, false, null);
 
-                    (var underClass, _) = GetConvertibleBaseCSharpType(listType);
+                    (var underClass, _, _) = GetConvertibleBaseCSharpType(listType);
                     if (!underClass.Implements(typeof(IGraphType)))
                         underClass = underClass.GetGraphTypeFromType(true);
                     returnType = typeof(ListGraphType<>).MakeGenericType(underClass);
+                    baseGraphQLType = underClass;
                     nullable = true;
                 }
 
@@ -142,11 +154,12 @@ namespace GraphQLCore.Extensions
                 {
                     var genericType = typeof(GenericType<>).MakeGenericType(cSharpType);
                     var derived = genericType.GetDerivedGenericUserType();
+                    baseGraphQLType = derived;
                     returnType = derived;
                     nullable = true;
                 }
 
-                return (returnType, nullable);
+                return (returnType, nullable, baseGraphQLType);
             }
             catch(Exception e)
             {
@@ -174,7 +187,7 @@ namespace GraphQLCore.Extensions
         /// <returns>An appropriate GraphQL.NET Type</returns>
         public static Type ConvertToGraphQLType(this Type cSharpType)
         {
-            (Type graphQlType, var nullable) = GetConvertibleBaseCSharpType(cSharpType);
+            (Type graphQlType, var nullable, var underClass) = GetConvertibleBaseCSharpType(cSharpType);
 
             if(graphQlType is null)
                 throw new GraphQLCoreConversionException(
@@ -186,6 +199,28 @@ namespace GraphQLCore.Extensions
 
             else
                 return graphQlType.GetGraphTypeFromType(nullable);
+        }
+
+        /// <summary>
+        /// Given a C# Type instance that represents a value type, enumeration, or class, returns the appropriate base GraphQL.NET Type
+        /// For example, in cases such as Lists, returns the GraphQL.NET type of the generic argument 
+        /// </summary>
+        /// <param name="cSharpType">The C# Type to convert</param>
+        /// <returns>An appropriate GraphQL.NET Type</returns>
+        public static Type GetBaseGraphQLType(this Type cSharpType)
+        {
+            (Type graphQlType, var nullable, var underClass) = GetConvertibleBaseCSharpType(cSharpType);
+
+            if (graphQlType is null)
+                throw new GraphQLCoreConversionException(
+                    $"The C# type '{cSharpType.Name}' is not currently supported for auto-conversion into a GraphQL Node-type. " +
+                    $"Consider registering it as a custom class in your GraphQL middleware");
+
+            if (underClass.Implements(typeof(IGraphType)))
+                return underClass;
+
+            else
+                return underClass.GetGraphTypeFromType(nullable);
         }
 
         /// <summary>

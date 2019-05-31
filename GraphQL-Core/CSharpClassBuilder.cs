@@ -2,6 +2,7 @@
 using GraphQLCore.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -60,6 +61,14 @@ namespace GraphQLCore
         {
             if (genericTypeParentClasses.ContainsKey(T))
                 return genericTypeParentClasses[T];
+
+            return null;
+        }
+
+        public static Type GetBaseGenericUserType(this Type T)
+        {
+            if (genericTypeParentClasses.ContainsValue(T))
+                return genericTypeParentClasses.Where(p => p.Value == T).FirstOrDefault().Key;
 
             return null;
         }

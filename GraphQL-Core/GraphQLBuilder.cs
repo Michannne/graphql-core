@@ -214,7 +214,7 @@ namespace GraphQLCore.GraphQL
             )
         {
             var userTypeA = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<A>();
-            var userTypeB = typeof(BResult).ConvertToGraphQLType();
+            var userTypeB = typeof(BResult).GetBaseGraphQLType();
             GenericType<A> graphQlTypeAInstance;
             if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userTypeA))
                 graphQlTypeAInstance = (GenericType<A>)((IGraphQLBuilder)this).GraphQLTypes[userTypeA];
@@ -232,8 +232,10 @@ namespace GraphQLCore.GraphQL
             graphQlTypeAInstance.Stitch(expr, propertyName, joinTo());
 
             //Remove references of A type from BResult
-            (((IGraphQLBuilder)this).GraphQLTypes[userTypeB] as GenericType<BResult>)
-                .RemoveFieldType(userTypeA);
+            var baseTypeOfBResult = GraphQLCoreTypeWrapperGenerator.GetBaseGenericUserType(userTypeB);
+            var storedObjectInstanceOfBase = ((IGraphQLBuilder)this).GraphQLTypes[userTypeB];
+            baseTypeOfBResult
+                .InvokeMember("RemoveFieldType", BindingFlags.InvokeMethod, null, storedObjectInstanceOfBase, new object[] { userTypeA });
 
             return this;
         }
