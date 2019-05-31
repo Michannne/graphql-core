@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using GraphQLCore.Extensions;
+using GraphQLExtensions = GraphQLCore.Extensions.GraphQLExtensions;
 
 namespace GraphQLCore.GraphQL
 {
@@ -159,20 +160,46 @@ namespace GraphQLCore.GraphQL
             Services = services;
             services.AddSingleton(schema);
             services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+            //services.AddSingleton<GuidGraphType>();
+            //services.AddSingleton<EnumerationGraphType>();
+            //services.AddSingleton<DateTimeGraphType>();
+
+            GraphQLExtensions.AddUnsupportedGraphQLConversions();
         }
 
         IGraphQLBuilder IGraphQLBuilder.Type<T>()
         {
-            var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
-
-            if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
-                return this;
-
-            var graphQlTypeInstance = new GenericType<T>(this)
+            try
             {
-                Name = typeof(T).Name
-            };
-            ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+                if (GraphQLExtensions.IsExtendedGraphQLType(typeof(T)))
+                {
+                    var type = typeof(T).IsGenericType ? typeof(T).GenericTypeArguments[0] : typeof(T);
+
+                    if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(typeof(T)))
+                        return this;
+
+                    var graphQlTypeInstance = Activator.CreateInstance<T>();
+                    ((IGraphQLBuilder)this).GraphQLTypes.Add(typeof(T), graphQlTypeInstance);
+                }
+                else
+                {
+                    var userType = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<T>();
+
+                    if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userType))
+                        return this;
+
+                    var graphQlTypeInstance = new GenericType<T>(this)
+                    {
+                        Name = typeof(T).Name
+                    };
+                    ((IGraphQLBuilder)this).GraphQLTypes.Add(userType, graphQlTypeInstance);
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+            
             return this;
         }
 
@@ -187,7 +214,7 @@ namespace GraphQLCore.GraphQL
             )
         {
             var userTypeA = GraphQLCoreTypeWrapperGenerator.CreateGraphQLTypeWrapper<A>();
-            var userTypeB = typeof(BResult).ConvertToGraphQLType();
+            var userTypeB = typeof(BResult).GetBaseGraphQLType();
             GenericType<A> graphQlTypeAInstance;
             if (((IGraphQLBuilder)this).GraphQLTypes.ContainsKey(userTypeA))
                 graphQlTypeAInstance = (GenericType<A>)((IGraphQLBuilder)this).GraphQLTypes[userTypeA];
@@ -203,6 +230,12 @@ namespace GraphQLCore.GraphQL
             var propertyName = (joinOn.Body as MemberExpression ?? ((UnaryExpression)joinOn.Body).Operand as MemberExpression).Member.Name;
 
             graphQlTypeAInstance.Stitch(expr, propertyName, joinTo());
+
+            //Remove references of A type from BResult
+            var baseTypeOfBResult = GraphQLCoreTypeWrapperGenerator.GetBaseGenericUserType(userTypeB);
+            var storedObjectInstanceOfBase = ((IGraphQLBuilder)this).GraphQLTypes[userTypeB];
+            baseTypeOfBResult
+                .InvokeMember("RemoveFieldType", BindingFlags.InvokeMethod, null, storedObjectInstanceOfBase, new object[] { userTypeA });
 
             return this;
         }

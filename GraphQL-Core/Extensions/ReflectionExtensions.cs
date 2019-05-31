@@ -44,14 +44,20 @@ namespace GraphQLCore.Extensions
         /// <returns>A cref="List{Type}" containing all derived classes found </returns>
         internal static List<Type> FindAllDerivedTypes<T>(Assembly assembly)
         {
-            var derivedType = typeof(T);
-            return assembly
-                .GetTypes()
-                .Where(t =>
-                    t != derivedType &&
-                    derivedType.IsAssignableFrom(t)
-                    ).ToList();
-
+            try
+            {
+                var derivedType = typeof(T);
+                return assembly
+                    .GetTypes()
+                    .Where(t =>
+                        t != derivedType &&
+                        derivedType.IsAssignableFrom(t)
+                        ).ToList();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Attempting to find all types derived from the given assembly failed", e);
+            }
         }
 
         /// <summary>
@@ -62,14 +68,20 @@ namespace GraphQLCore.Extensions
         /// <returns></returns>
         internal static List<Type> FindAllGraphQLDerivedTypes(this Type T)
         {
-            var derivedType = T;
-            return Assembly.Load(GraphQLCoreTypeWrapperGenerator.asmBuilder.GetName())
-                .GetTypes()
-                .Where(t =>
-                    t != derivedType &&
-                    derivedType.IsAssignableFrom(t)
-                    ).ToList();
-
+            try
+            {
+                var derivedType = T;
+                return Assembly.Load(GraphQLCoreTypeWrapperGenerator.asmBuilder.GetName())
+                    .GetTypes()
+                    .Where(t =>
+                        t != derivedType &&
+                        derivedType.IsAssignableFrom(t)
+                        ).ToList();
+            }
+            catch(Exception e)
+            {
+                throw new Exception("An attempt to search the space of dynamically generated GraphQL-Core C# types failed.", e);
+            }
         }
     }
 }

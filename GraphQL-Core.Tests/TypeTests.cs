@@ -5,6 +5,12 @@ using GraphQLCore.Types;
 using System;
 using GraphQLCore.Resolvers;
 using GraphQLCore.GraphQL;
+using GraphQL_Core.Tests.Models.Enum;
+using GraphQL.Types;
+using GraphQL;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace GraphQL_Core.Tests
 {
@@ -121,8 +127,6 @@ namespace GraphQL_Core.Tests
         [DataRow(typeof(Author))]
         [DataRow(typeof(Author_WithValueTypes))]
         [DataRow(typeof(Author_WithEnumTypes))]
-        [DataRow(typeof(Author_WithEnumerableBooks))]
-        [DataRow(typeof(Author_WithManyManyBooks))]
         [DataRow(typeof(Book_WithDuplicateBaseTypes))]
         [DataRow(typeof(Book_WithTwoAuthors))]
         [DataRow(typeof(Book_WithVirtualAuthorAndId))]
@@ -207,7 +211,8 @@ namespace GraphQL_Core.Tests
                 GraphQLQuery defaultQuery = 
                     () => new Query() {
                         Expression = $"get_{field.Name}",
-                        Resolver = (context) => Activator.CreateInstance(field.PropertyType)
+                        Resolver = (context) => 
+                            field.PropertyType.DefaultUnknownProperty()
                     };
 
                 var methodInfo = builder
@@ -233,6 +238,17 @@ namespace GraphQL_Core.Tests
             foreach (var field in typeof(T).GetProperties())
             {
                 Assert.IsTrue(userModelInstance.HasField(field.Name));
+
+                var subFields = TestExtensions.ConstructSubFieldSelector(field.PropertyType, "");
+
+                //add sub-selection is field is class, use all props
+                (var hasError, var result) = initializer.Ask($@"
+                    {{
+                        get_{field.Name} {subFields}
+                    }}
+                ");
+
+                Assert.IsFalse(hasError);
             }
         }
     }

@@ -1,6 +1,8 @@
-﻿using GraphQLCore.Types;
+﻿using GraphQLCore.Exceptions;
+using GraphQLCore.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
@@ -21,17 +23,30 @@ namespace GraphQLCore
 
         public static Type CreateGraphQLTypeWrapper<T>()
         {
-            if (genericTypeParentClasses.ContainsKey(typeof(GenericType<T>)))
-                return genericTypeParentClasses[typeof(GenericType<T>)];
-            TypeBuilder tb = GetTypeBuilder(typeof(T).Name + typeNameAppend);
-            _ = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
-            tb.SetParent(typeof(GenericType<T>));
-            TypeInfo objectTypeInfo = tb.CreateTypeInfo();
-            Type type = objectTypeInfo.AsType();
+            try
+            {
+                if (genericTypeParentClasses.ContainsKey(typeof(GenericType<T>)))
+                    return genericTypeParentClasses[typeof(GenericType<T>)];
 
-            genericTypeParentClasses[typeof(GenericType<T>)] = type;
+                TypeBuilder tb = GetTypeBuilder(typeof(T).Name + typeNameAppend, typeof(GenericType<T>));
+                tb.DefineDefaultConstructor(
+                    MethodAttributes.Public
+                    | MethodAttributes.SpecialName
+                    | MethodAttributes.RTSpecialName);
 
-            return type;
+                tb.SetParent(typeof(GenericType<T>));
+
+                TypeInfo objectTypeInfo = tb.CreateTypeInfo();
+                Type type = objectTypeInfo.AsType();
+
+                genericTypeParentClasses[typeof(GenericType<T>)] = type;
+
+                return type;
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreMSILException("Attempt to create new C# type failed. Refer to inner exception for details", e);
+            }
         }
 
         public static Type GetDerivedGenericUserType<T>()
@@ -50,29 +65,59 @@ namespace GraphQLCore
             return null;
         }
 
-        private static AssemblyName CreateDynamicAssemblyName()
+        public static Type GetBaseGenericUserType(this Type T)
         {
-            var currentAssemblyName = Assembly.GetEntryAssembly().GetName().Clone() as AssemblyName;
-            currentAssemblyName.Name += asmNameAppend;
-            return currentAssemblyName;
+            if (genericTypeParentClasses.ContainsValue(T))
+                return genericTypeParentClasses.Where(p => p.Value == T).FirstOrDefault().Key;
+
+            return null;
         }
 
-        private static TypeBuilder GetTypeBuilder(string typeName)
+        private static AssemblyName CreateDynamicAssemblyName()
         {
-            var typeSignature = typeName;
+            try
+            {
+                var currentAssemblyName = Assembly.GetEntryAssembly().GetName().Clone() as AssemblyName;
+                var asmName = new AssemblyName(Guid.NewGuid().ToString());
+                asmName.Name = currentAssemblyName.Name + asmNameAppend;
+                return currentAssemblyName;
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreAssemblyException("Attempt to create new dynamic assembly failed. Refer to inner exception for details", e);
+            }
+        }
 
-            if(mdBuilder is null)
-                mdBuilder = asmBuilder.DefineDynamicModule(mdName);
+        private static TypeBuilder GetTypeBuilder(string typeName, Type baseClass)
+        {
+            try
+            {
+                var typeSignature = typeName;
 
-            TypeBuilder tb = mdBuilder.DefineType(typeSignature,
-                    TypeAttributes.Public |
-                    TypeAttributes.Class |
-                    TypeAttributes.AutoClass |
-                    TypeAttributes.AnsiClass |
-                    TypeAttributes.BeforeFieldInit |
-                    TypeAttributes.AutoLayout,
-                    null);
-            return tb;
+                if (mdBuilder is null)
+                    mdBuilder = asmBuilder.DefineDynamicModule(mdName);
+
+                TypeBuilder tb = mdBuilder.DefineType(typeSignature,
+                        TypeAttributes.Public |
+                        TypeAttributes.Class |
+                        TypeAttributes.AutoClass |
+                        TypeAttributes.AnsiClass |
+                        TypeAttributes.BeforeFieldInit |
+                        TypeAttributes.AutoLayout,
+                        baseClass);
+                return tb;
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreClassDefinitionException("Attempt to define a new C# type failed. Refer to inner exception for details", e);
+            }
+        }
+
+        public static void Clear()
+        {
+            genericTypeParentClasses.Clear();
+            mdBuilder = null;
+            asmBuilder = AssemblyBuilder.DefineDynamicAssembly(CreateDynamicAssemblyName(), AssemblyBuilderAccess.Run);
         }
     }
 }
