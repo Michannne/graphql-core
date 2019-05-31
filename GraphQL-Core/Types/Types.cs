@@ -1,7 +1,10 @@
 ﻿using GraphQL.Types;
+using GraphQLCore.Exceptions;
 using GraphQLCore.Extensions;
 using GraphQLCore.GraphQL;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace GraphQLCore.Types
 {
@@ -19,34 +22,66 @@ namespace GraphQLCore.Types
         /// <summary>
         /// Initializes the GraphQL Type, using the provided user-defined model
         /// </summary>
+        
+        public GenericType()
+            : this(null)
+        {
+        }
+
         public GenericType(IGraphQLBuilder builder = null)
         {
-            var typedClass = typeof(T);
-            var props = typedClass.GetProperties();
-            foreach (var prop in props)
+            try
             {
-                Type propGraphQLType = null;
-
-                propGraphQLType = prop.PropertyType.TryConvertToGraphQLType();
-
-                if(propGraphQLType is null)
+                var typedClass = typeof(T);
+                var props = typedClass.GetProperties();
+                foreach (var prop in props)
                 {
-                    builder
-                        .GetType()
-                        .GetInterface("IGraphQLBuilder")
-                        .GetMethod("Type")
-                        .MakeGenericMethod(prop.PropertyType)
-                        .Invoke(builder, null);
+                    Type propGraphQLType = null;
 
-                    propGraphQLType = typeof(GenericType<>).MakeGenericType(prop.PropertyType);
+                    propGraphQLType = prop.PropertyType.TryConvertToGraphQLType();
 
-                    if(propGraphQLType is null)
-                        throw new InvalidCastException(
-                            $"{prop.Name} was not automatically convertible into a GraphQL type. " +
-                            $"Try explicitly adding this Type through the GraphQL-Core middleware.");
+                    if (propGraphQLType != null && GraphQLExtensions.IsExtendedGraphQLType(propGraphQLType))
+                    {
+                        var resolvedType = propGraphQLType;
+                        builder
+                            .GetType()
+                            .GetInterface("IGraphQLBuilder")
+                            .GetMethod("Type")
+                            .MakeGenericMethod(resolvedType)
+                            .Invoke(builder, null);
+                    }
+                    else if (propGraphQLType is null)
+                    {
+                        var resolvedType = propGraphQLType ?? prop.PropertyType;
+
+                        builder
+                            .GetType()
+                            .GetInterface("IGraphQLBuilder")
+                            .GetMethod("Type")
+                            .MakeGenericMethod(resolvedType)
+                            .Invoke(builder, null);
+
+                        propGraphQLType = typeof(GenericType<>).MakeGenericType(resolvedType);
+
+                        if (propGraphQLType is null)
+                            throw new InvalidCastException(
+                                $"{prop.Name} was not automatically convertible into a GraphQL type. " +
+                                $"Try explicitly adding this Type through the GraphQL-Core middleware.");
+
+                        propGraphQLType = GraphQLCoreTypeWrapperGenerator.GetDerivedGenericUserType(propGraphQLType);
+
+                        if (propGraphQLType is null)
+                            throw new NotSupportedException(
+                                $"{prop.Name} is a custom type but was not registered through builder. " +
+                                $"Try explicitly adding this Type through the Graph-Core middleware");
+                    }
+
+                    Field(propGraphQLType, prop.Name);
                 }
-
-                Field(propGraphQLType, prop.Name);
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreTypeException($"An attempt to create a generic type for type {nameof(T)} failed. Refer to inner exception for details", e);
             }
         }
 
@@ -59,19 +94,40 @@ namespace GraphQLCore.Types
         /// <param name="joinTo"></param>
         public void Stitch<BResult>(string expression, string joinOn, Func<object, Func<ResolveFieldContext<T>, BResult>> joinTo)
         {
-            var stitchingType = typeof(BResult).ConvertToGraphQLType();
-            var field = GetField(joinOn);
-
-            object resolver(ResolveFieldContext<T> context)
+            try
             {
-                var p = joinTo(
-                    typeof(T)
-                    .GetProperty(joinOn)
-                    .GetValue(context.Source))(context);
-                return p;
-            }
+                var stitchingType = typeof(BResult).ConvertToGraphQLType();
+                var field = GetField(joinOn);
 
-            Field(stitchingType, expression, resolve: (context) => resolver(context));
+                object resolver(ResolveFieldContext<T> context)
+                {
+                    var p = joinTo(
+                        typeof(T)
+                        .GetProperty(joinOn)
+                        .GetValue(context.Source))(context);
+                    return p;
+                }
+
+                Field(stitchingType, expression, resolve: (context) => resolver(context));
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreStitchException($"An error occurred while attempting to stitch a field of type {nameof(BResult)} into type {nameof(T)}", e);
+            }
+        }
+
+        public void RemoveFieldType(Type ofType)
+        {
+            try
+            {
+                var currentFields = ((ObjectGraphType<T>)this).Fields;
+                FieldInfo fi = ((ObjectGraphType<T>)this).GetType().BaseType.BaseType.GetField("_fields", BindingFlags.NonPublic | BindingFlags.Instance);
+                fi.SetValue(this, currentFields.Where(field => field.Type != ofType).ToList());
+            }
+            catch(Exception e)
+            {
+                throw new GraphQLCoreTypeException($"An error occurred while attempted to remove field of type {nameof(ofType)} from {nameof(T)}. Refer to inner exception for details", e);
+            }
         }
     }
 }
