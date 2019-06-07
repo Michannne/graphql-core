@@ -36,9 +36,13 @@ namespace GraphQLCore.Resolvers
     public class GenericFieldResolver : ObjectGraphType, ITypedFieldResolver
     {
         public string Expression { get; set; }
+
         public new string Description { get; set; }
+
         public new string DeprecationReason { get; set; }
+
         public QueryArguments Args { get; set; }
+
         public Func<ResolveFieldContext<object>, object> Resolver { get; set; }
 
         public FieldType Invoke(Type cSharpType)
