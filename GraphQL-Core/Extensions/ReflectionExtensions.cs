@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GraphQLCore.Extensions
 {
@@ -71,7 +70,7 @@ namespace GraphQLCore.Extensions
             try
             {
                 var derivedType = T;
-                return Assembly.Load(GraphQLCoreTypeWrapperGenerator.asmBuilder.GetName())
+                return Assembly.Load(GraphQLCoreTypeWrapperGenerator.assemblyBuilder.GetName())
                     .GetTypes()
                     .Where(t =>
                         t != derivedType &&
